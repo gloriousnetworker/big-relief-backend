@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const ngoController = require('../controllers/ngo.controller');
+const { authenticate } = require('../middlewares/auth.middleware');
 
-// NGO routes
-router.post('/ngos', ngoController.createNGO);
+router.post('/ngos', authenticate, ngoController.createNGO);
 router.get('/ngos', ngoController.getAllNGOs);
 router.get('/ngos/:id', ngoController.getNGOById);
 
