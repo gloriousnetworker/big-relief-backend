@@ -6,7 +6,7 @@ exports.createNGO = async (req, res, next) => {
     const ngoData = req.body;
     const newNGO = await NGO.create({
       ...ngoData,
-      createdBy: req.user.id
+      createdBy: req.user.id // Associate NGO with creator
     });
 
     res.status(201).json({

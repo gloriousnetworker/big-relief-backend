@@ -13,6 +13,12 @@ exports.authenticate = (req, res, next) => {
 
     // Verify token
     const decoded = jwt.verify(token, jwtConfig.secret);
+    
+    // Verify token has required fields
+    if (!decoded.id || !decoded.role) {
+      throw new ErrorHandler(401, 'Invalid token structure');
+    }
+
     req.user = decoded;
     next();
   } catch (error) {
@@ -20,11 +26,13 @@ exports.authenticate = (req, res, next) => {
   }
 };
 
-exports.authorize = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(new ErrorHandler(403, 'Unauthorized access'));
+exports.isAdmin = (req, res, next) => {
+  try {
+    if (req.user.role !== 'admin') {
+      throw new ErrorHandler(403, 'Admin access required');
     }
     next();
-  };
+  } catch (error) {
+    next(error);
+  }
 };

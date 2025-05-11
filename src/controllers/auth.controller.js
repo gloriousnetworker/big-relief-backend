@@ -4,6 +4,7 @@ const { comparePassword } = require('../utils/passwordUtils');
 const jwtConfig = require('../config/jwtConfig');
 const { ErrorHandler } = require('../utils/errorHandler');
 
+// Register a new user
 exports.register = async (req, res, next) => {
   try {
     const { email, password, name } = req.body;
@@ -23,6 +24,7 @@ exports.register = async (req, res, next) => {
   }
 };
 
+// Login user and issue JWT
 exports.login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -41,9 +43,16 @@ exports.login = async (req, res, next) => {
       throw new ErrorHandler(401, 'Invalid credentials');
     }
 
-    // Create token
+    // Include the user's role in the token payload
+    const tokenPayload = { 
+      id: user.id, 
+      email: user.email, 
+      role: user.role
+    };
+
+    // Sign access token
     const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
+      tokenPayload,
       jwtConfig.secret,
       { expiresIn: jwtConfig.expiresIn }
     );
@@ -61,6 +70,7 @@ exports.login = async (req, res, next) => {
   }
 };
 
+// Get logged-in user's profile
 exports.getMe = async (req, res, next) => {
   try {
     const user = await User.findById(req.user.id);
