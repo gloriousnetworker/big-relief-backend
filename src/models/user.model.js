@@ -7,7 +7,7 @@ class User {
     this.password = data.password;
     this.name = data.name || '';
     this.role = data.role || 'user';
-    this.createdAt = new Date().toISOString();
+    this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = new Date().toISOString();
   }
 
@@ -61,6 +61,18 @@ class User {
       const { password, ...userWithoutPassword } = data;
       return { id: doc.id, ...userWithoutPassword };
     });
+  }
+
+  
+  // Update user role (admin only)
+  static async updateRole(id, newRole) {
+    const docRef = db.collection('users').doc(id);
+    await docRef.update({
+      role: newRole,
+      updatedAt: new Date().toISOString()
+    });
+    const updatedDoc = await docRef.get();
+    return { id: updatedDoc.id, ...updatedDoc.data() };
   }
 
   // Convert to JSON (exclude password)

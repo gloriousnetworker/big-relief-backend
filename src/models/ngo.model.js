@@ -11,8 +11,9 @@ class NGO {
     this.contactEmail = data.contactEmail || '';
     this.imageUrl = data.imageUrl || '';
     this.createdBy = data.createdBy || '';
-    this.createdAt = new Date().toISOString();
+    this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = new Date().toISOString();
+    this.isVerified = data.isVerified || false; // Added verification status
   }
 
   // Create a new NGO document
@@ -38,6 +39,23 @@ class NGO {
     return { id: doc.id, ...doc.data() };
   }
 
+  // Update an NGO
+  static async update(id, updateData) {
+    const docRef = db.collection('ngos').doc(id);
+    await docRef.update({
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    });
+    const updatedDoc = await docRef.get();
+    return { id: updatedDoc.id, ...updatedDoc.data() };
+  }
+
+  // Delete an NGO
+  static async delete(id) {
+    await db.collection('ngos').doc(id).delete();
+    return { id, message: 'NGO deleted successfully' };
+  }
+
   // Convert instance to JSON (for Firestore)
   toJSON() {
     return {
@@ -50,6 +68,7 @@ class NGO {
       contactEmail: this.contactEmail,
       imageUrl: this.imageUrl,
       createdBy: this.createdBy,
+      isVerified: this.isVerified,
       createdAt: this.createdAt,
       updatedAt: this.updatedAt
     };

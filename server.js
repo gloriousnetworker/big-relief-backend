@@ -56,7 +56,7 @@ app.get('/', (req, res) => {
 
 // Routes
 app.use('/api/v1/auth', authRoutes);
-app.use('/api/v1', ngoRoutes);
+app.use('/api/v1/ngos', ngoRoutes);
 app.use('/api/v1/admin', adminRoutes);
 
 // Global error handler
