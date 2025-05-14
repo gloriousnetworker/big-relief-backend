@@ -10,50 +10,41 @@ class User {
     this.createdAt = data.createdAt || new Date().toISOString();
     this.updatedAt = new Date().toISOString();
   }
-
-  // Create new user
+  
   static async create(userData) {
     const { email, password } = userData;
-
     // Prevent duplicate users
     const existingUser = await this.findByEmail(email);
     if (existingUser) {
       throw new Error('User already exists');
     }
-
     // Hash password
     const hashedPassword = await hashPassword(password);
     const userRef = db.collection('users').doc();
-
     // Save user data (including hashed password)
     await userRef.set({
       ...new User({ ...userData, password: hashedPassword }).toJSON(),
       password: hashedPassword
     });
-
     return { id: userRef.id, email, name: userData.name };
   }
-
-  // Find user by email
+  
   static async findByEmail(email) {
     const snapshot = await db.collection('users')
       .where('email', '==', email)
       .limit(1)
       .get();
-
     if (snapshot.empty) return null;
     const doc = snapshot.docs[0];
     return { id: doc.id, ...doc.data() };
   }
-
-  // Find user by ID
+  
   static async findById(id) {
     const doc = await db.collection('users').doc(id).get();
     if (!doc.exists) return null;
     return { id: doc.id, ...doc.data() };
   }
-
-  // Get all users (omit passwords)
+  
   static async getAll() {
     const snapshot = await db.collection('users').get();
     return snapshot.docs.map(doc => {
@@ -62,9 +53,7 @@ class User {
       return { id: doc.id, ...userWithoutPassword };
     });
   }
-
-  
-  // Update user role (admin only)
+ 
   static async updateRole(id, newRole) {
     const docRef = db.collection('users').doc(id);
     await docRef.update({
@@ -72,10 +61,28 @@ class User {
       updatedAt: new Date().toISOString()
     });
     const updatedDoc = await docRef.get();
-    return { id: updatedDoc.id, ...updatedDoc.data() };
+    const data = updatedDoc.data();
+    const { password, ...userWithoutPassword } = data;
+    return { id: updatedDoc.id, ...userWithoutPassword };
   }
-
-  // Convert to JSON (exclude password)
+  
+  static async update(id, updateData) {
+    const docRef = db.collection('users').doc(id);
+    await docRef.update({
+      ...updateData,
+      updatedAt: new Date().toISOString()
+    });
+    const updatedDoc = await docRef.get();
+    const data = updatedDoc.data();
+    const { password, ...userWithoutPassword } = data;
+    return { id: updatedDoc.id, ...userWithoutPassword };
+  }
+  
+  static async delete(id) {
+    await db.collection('users').doc(id).delete();
+    return { id, message: 'User deleted successfully' };
+  }
+  
   toJSON() {
     return {
       email: this.email,
@@ -92,7 +99,6 @@ class User {
   try {
     const adminEmail = 'mabu@bigrelief.com';
     const adminExists = await User.findByEmail(adminEmail);
-
     if (!adminExists) {
       await User.create({
         email: adminEmail,

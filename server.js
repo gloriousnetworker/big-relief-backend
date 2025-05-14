@@ -4,6 +4,8 @@ const cors = require('cors');
 const authRoutes = require('./src/routes/auth.routes');
 const ngoRoutes = require('./src/routes/ngo.routes');
 const adminRoutes = require('./src/routes/admin.routes');
+const scholarshipRoutes = require('./src/routes/scholarship.routes');
+const bannerRoutes = require('./src/routes/banner.routes');
 const { handleError } = require('./src/utils/errorHandler');
 
 const app = express();
@@ -45,10 +47,21 @@ app.get('/', (req, res) => {
       ngos: {
         create: 'POST /api/v1/ngos',
         getAll: 'GET /api/v1/ngos',
-        getOne: 'GET /api/v1/ngos/:id'
+        getOne: 'GET /api/v1/ngos/:id',
+        verify: 'PATCH /api/v1/ngos/:id/verify'
       },
       admin: {
-        getAllUsers: 'GET /api/v1/admin/users'
+        getAllUsers: 'GET /api/v1/admin/users',
+        pending: 'GET /api/v1/admin/pending-ngos',
+        banners: 'POST /api/v1/admin/banners'
+      },
+      scholarships: {
+        create: 'POST /api/v1/scholarships',
+        getAll: 'GET /api/v1/scholarships',
+        getByNGO: 'GET /api/v1/scholarships/ngo/:ngoId'
+      },
+      banners: {
+        getActive: 'GET /api/v1/banners/active'
       }
     }
   });
@@ -58,6 +71,8 @@ app.get('/', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/ngos', ngoRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/scholarships', scholarshipRoutes);
+app.use('/api/v1/banners', bannerRoutes);
 
 // Global error handler
 app.use((err, req, res, next) => {
