@@ -24,7 +24,8 @@ const corsOptions = {
     'http://localhost:3000',
     'https://bigrelief.vercel.app',
     'http://bigrelief.com.ng',
-    'https://big-relief-backend.vercel.app'
+    'https://big-relief-backend.vercel.app',
+    'https://www.bigrelief.com.ng'
   ],
   optionsSuccessStatus: 200
 };
